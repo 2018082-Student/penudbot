@@ -17,15 +17,24 @@ def get_potential_energy(a4,a5, q):
 def get_kinetic_energy(qdot, M ):
     return ( 1 / 2 ) * qdot @ M @ qdot
 
-# Coriolis 
+# Coriolis Matrix from Xin
 def get_H(a3, q, qdot):
     q1dot = qdot[0]
     q2dot = qdot[1]
     q2 = q[1]
     return a3 * np.array( [ - 2 * q1dot * q2dot - np.power( q2dot, 2 ) , np.power( q1dot, 2) ] ) * np.sin( q2 )
 
+# Gravity 
 def get_G (a4, a5, q1, q2 ):
     return np.array( [ - a4 * np.sin( q1 ) - a5 * np.sin( q1 + q2 ), - a5 * np.sin( q1 + q2 ) ] )
+
+# Gravity from Lanari
+def get_g_lanari(a4, a5 ,q1, q2):
+    return np.array( [ a4 * np.sin( q1 ) + a5 * np.sin( q1 + q2 ) , a5 * np.sin( q1 + q2 ) ])
+
+# Coriolis from Lanari
+def get_coriolis_lanari( a2, q2, q1dot, q2dot ):
+    return np.array( [ a2 * np.sin( q2 ) * q2dot * ( q2dot + 2 * q1dot ) , a2 * np.sin( q2 ) * (q2dot * q2dot) ])
 
 def get_G_jacobian(a4, a5, q1, q2):
     return np.array( [ [ - a4 * np.cos( q1 ) - a5 * np.cos( q1 + q2 ), - a5 * np.cos( q1 + q2 )], 
@@ -37,13 +46,14 @@ def get_linearized_G_lanari(a4, a5, q):
     return np.array( [ [ a4 * np.cos( q1 ) + a5 * np.cos( q1 + q2 ) , a5 * np.cos( q1 + q2 ) ] , 
                        [ a5 * np.cos( q1 + q2 ) , a5 * np.cos( q1 + q2 ) ] ] )
 
+# swing up controller with the model computation done in pinocchio 
 def SwingUpControl_Pin(robotModel, q, qdot):
 
     pin.computeAllTerms(robotModel.model, robotModel.data, q, qdot)
 
-    kv = 10
-    kd = 9
-    kp = 25
+    kv = 0.4
+    kd = 0.15
+    kp = 2
 
     q1dot = qdot[0] 
     q1 = q[0]
@@ -75,23 +85,33 @@ def SwingUpControl(q, qdot, params):
     q1dot = qdot[0]
     q2dot = qdot[1]
      
-    kv = 1
-    kd = 50
-    kp = 1
+    kv = 0.4
+    kd = 0.15
+    kp = 2
 
-    M = get_M(a1, a2, a3, q)
+    #M = get_M(a1, a2, a3, q)
+    M = get_M_lanari(a1, a2, a3, q)
     M_inv = np.linalg.inv( M )
+
     B = np.array( [1, 0] ) # TODO ?? mybe make it column 
-    H = get_H( a3, q, qdot )
-    G = get_G( a4, a5, q[0], q[1] )
-    F = np.diag( [f1, f2])
+
+    c = get_coriolis_lanari( a2, q2, q1dot, q2dot )
+
+    g = get_g_lanari( a4, a5 , q1, q2 )
+    
     pot_energy = get_potential_energy( a4, a5, q )
+    
     kin_energy = get_kinetic_energy( qdot, M )
+    #print(kin_energy)
     E = pot_energy + kin_energy
+    #print(E)
+    
     E_ref = get_potential_energy(a4,a5, [0,0])
-    omega = np.sqrt( np.power( a4 ,2 ) + np.power( a5, 2 ) + 2 * a4 * a5 * np.cos( q2 ) )
-    lam = ( E - E_ref ) + kd * ( B.T @ M_inv @ B )      
-    tau1 =( - kv * q1dot -  kp * q1 + kd * B.T @ M_inv @ ( H + G ) ) / lam
+    #omega = np.sqrt( np.power( a4 ,2 ) + np.power( a5, 2 ) + 2 * a4 * a5 * np.cos( q2 ) )
+    
+    lam = ( E - E_ref ) + kd * ( B.T @ M_inv @ B )
+      
+    tau1 =( - kv * q1dot -  kp * q1 + kd * B.T @ M_inv @ ( c + g ) ) / lam
     tau1 = np.squeeze(tau1).item()
     return np.array([tau1, 0])
 
@@ -153,6 +173,14 @@ def get_B_lanari(a1, a2, a3, a4, a5):
     lower_rows = np.array( M_inv @ np.array( [ 1 , 0 ] ) ).T
     B = np.concatenate((upper_rows, lower_rows), axis=0)
     return B
+
+def lqr_pin (robotModel):
+    A = np.array([[0, 1], [1*9.81/1, 0]])
+    B = np.array([[0], [1/(1*1**2)]])
+    Q = np.diag([1, 1])
+    R = np.array([[1]])
+    K = pin.controller.computeLQR(A, B, Q, R)
+    return K
 
 def lqr_lanari(a1, a2 , a3, a4, a5, f1, f2):
 

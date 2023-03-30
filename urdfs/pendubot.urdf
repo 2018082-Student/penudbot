@@ -4,7 +4,7 @@
   <link
     name="base_link">
     <inertial>
-      <origin xyz="0 0 3" rpy="0 0 0"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
       <mass value="1"/>
       <inertia ixx="0"  ixy="0"  ixz="0" iyy="0" iyz="0" izz="0" />
     </inertial>
@@ -20,8 +20,8 @@
     name="link_1">
     <inertial>
       <mass value="1"/>
-      <origin xyz = "0 0 0.25" />
-      <inertia ixx="0.020833"  ixy="0"  ixz="0" iyy="0.020833" iyz="0" izz="0.02083333" />
+      <origin xyz = "0 0 0.5" />
+      <inertia ixx="0.02083333"  ixy="0"  ixz="0" iyy="0" iyz="0" izz="0" />
     </inertial>
     <visual>
 			<origin xyz = "0 0 0.25" />
@@ -37,8 +37,8 @@
     name="link_2">
     <inertial>
       <mass value="1"/>
-      <origin xyz = "0 0 0.25" />
-      <inertia ixx="0.020833"  ixy="0"  ixz="0" iyy="0.020833" iyz="0" izz="0.02083333" />
+      <origin xyz = "0 0 0.5" />
+      <inertia ixx="0.020833"  ixy="0"  ixz="0" iyy="0" iyz="0" izz="0" />
     </inertial>
     <visual>
 			<origin xyz = "0 0 0.25" />
@@ -59,7 +59,7 @@
     <limit
       lower="-1000.0"
       upper="1000.0" effort="1000.0" velocity="1000.0"/>
-    <dynamics damping="0.1"/>
+    <dynamics damping="0.01"/>
 	</joint>
 
   <joint name = "joint_2" type = "revolute">
@@ -70,7 +70,7 @@
     <limit
       lower="-1000.0"
       upper="1000.0" effort="1000.0" velocity="1000.0"/>
-    <dynamics damping="0.1"/>
+    <dynamics damping="0.01"/>
 	</joint>
 
 

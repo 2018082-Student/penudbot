@@ -46,6 +46,7 @@ def simulate():
     qdot_e = np.array( [0,0])
 
     K = controller.lqr_lanari(a1, a2, a3, a4, a5, f1, f2)
+    #K = controller.lqr_pin(robotModel)
     #print(K)
     #input("press ENTER to START the simulation:")
 
@@ -58,7 +59,9 @@ def simulate():
             tau1 = - K @ np.array( [ q[0], q[1], qdot[0], qdot[1] ] )
             tau =  np.array( [tau1[0], 0])
         else:
+            #tau = controller.SwingUpControl(q, qdot, params)
             tau = controller.SwingUpControl_Pin(robotModel, q, qdot)
+        
         #tau = np.array([0,0])
         # send the torque command to the simulator
         pb.setJointMotorControlArray(
