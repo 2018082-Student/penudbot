@@ -37,7 +37,7 @@ def simulate():
     # dynamic quantities (see pinocchio docs) which can be retrieved 
     # either as members of the robotModel.data object, or via specific
     # functions
-    # pin.computeAllTerms(robotModel.model, robotModel.data, q, qdot)
+    pin.computeAllTerms(robotModel.model, robotModel.data, q, qdot)
 
     # set a desired joint configuration
     #qdes = np.array([0,0])
@@ -45,13 +45,13 @@ def simulate():
     q_e = np.array( [0,0])
     qdot_e = np.array( [0,0])
 
-    K = controller.lqr_lanari(a1, a2, a3, a4, a5, f1, f2)
+    K = controller.lqr(a1, a2, a3, a4, a5)
     #K = controller.lqr_pin(robotModel)
     #print(K)
     #input("press ENTER to START the simulation:")
 
     for i in range(int(simTime/simDT)):
-
+        pin.computeAllTerms(robotModel.model, robotModel.data, q, qdot)
         # read the current joint state from the simulator
         q, qdot = sim_utils.getState(robotID, jointIndices)    
 

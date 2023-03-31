@@ -24,7 +24,7 @@ def load_model_from_URDF():
     d2 = 0.25 # robot.links[2].Geometry.length / 2
     I_1zz = ( 1 / 12 ) * m1 * np.power( l1, 2 )
     I_2zz = ( 1 / 12 ) * m2 * np.power( l2, 2 )
-    g = -9.81
+    g = 9.81
     f1 = robot.joints[0].dynamics.damping
     f2 =  robot.joints[1].dynamics.damping
     
@@ -34,31 +34,7 @@ def load_model_from_URDF():
     a4 = g * ( m1 * d1 + m2 * l1 )
     a5 = g * ( m2 * d2 )
 
-    return [a1, a2,a3,a4,a5,f1,f2]
-
-#uses the parameters from the Penudbot Script of Lanari
-def load_model_from_URDF_lanari():
-    robot = URDF.load('urdfs/pendubot.urdf')
-
-    m1 = robot.links[1].inertial.mass
-    m2 = robot.links[2].inertial.mass
-    l1 = 0.5 #robot.links[1].Visual.geometry.length
-    l2 = 0.5 # robot.links[2].Geometry.length
-    d1 = 0.25 # robot.links[1].Geometry.length / 2
-    d2 = 0.25 # robot.links[2].Geometry.length / 2
-    I_1zz = ( 1 / 12 ) * m1 * np.power( l1, 2 )
-    I_2zz = ( 1 / 12 ) * m2 * np.power( l2, 2 )
-    g = - 9.81
-    f1 = robot.joints[0].dynamics.damping
-    f2 = robot.joints[1].dynamics.damping
-
-    a1 = I_1zz + m1 * np.power(d1,2) + I_2zz + m2 * ( np.power(l1,2) + np.power(l2,2) )
-    a2 = m2 * l1 * d2
-    a3 = I_2zz + m2 * np.power(d2,2)
-    a4 = g * ( m1 * d1 +m2 * l1 )
-    a5 = g * ( m2 * d2 )
-
-    return [a1, a2, a3, a4, a5, f1, f2]
+    return [ a1, a2, a3, a4, a5, f1, f2 ]
 
 def simulationSetup(simDT):
 
@@ -87,7 +63,8 @@ def simulationSetup(simDT):
 
     robotID = pb.loadURDF(urdf_filename, startPos, startOrientation, useFixedBase=1) # note that here we fix the base link
     
-    nDof = pb.getNumJoints(robotID)
+
+    nDof = 2
 
     # since pybullet defaults to velocity control set to 0 for all joints, to do
     # force control or to make joints passive we need to deactivate it by setting the maximum force to zero
@@ -104,8 +81,7 @@ def simulationSetup(simDT):
     pin_model = pin.buildModelFromUrdf(urdf_filename)
     pin_data = pin_model.createData()
     robotModel = RobotModel(pin_model, pin_data)
-    
-    return robotID, robotModel, load_model_from_URDF_lanari()
+    return robotID, robotModel, load_model_from_URDF()
 
 
 
@@ -123,3 +99,34 @@ def getState(robotID, jointList):
 class RobotModel():
     model: ...
     data: ...
+
+
+
+
+################################################################################
+### Functions implemented according to the PENDUBOT PDF by Lanari and Oriolo ###
+################################################################################
+
+#uses the parameters from the Penudbot Script of Lanari
+def load_model_from_URDF_lanari():
+    robot = URDF.load('urdfs/pendubot.urdf')
+
+    m1 = robot.links[1].inertial.mass
+    m2 = robot.links[2].inertial.mass
+    l1 = 0.5 #robot.links[1].Visual.geometry.length
+    l2 = 0.5 # robot.links[2].Geometry.length
+    d1 = 0.25 # robot.links[1].Geometry.length / 2
+    d2 = 0.25 # robot.links[2].Geometry.length / 2
+    I_1zz = ( 1 / 12 ) * m1 * np.power( l1, 2 )
+    I_2zz = ( 1 / 12 ) * m2 * np.power( l2, 2 )
+    g = - 9.81
+    f1 = robot.joints[0].dynamics.damping
+    f2 = robot.joints[1].dynamics.damping
+
+    a1 = I_1zz + m1 * np.power(d1,2) + I_2zz + m2 * ( np.power(l1,2) + np.power(l2,2) )
+    a2 = m2 * l1 * d2
+    a3 = I_2zz + m2 * np.power(d2,2)
+    a4 = g * ( m1 * d1 +m2 * l1 )
+    a5 = g * ( m2 * d2 )
+
+    return [a1, a2, a3, a4, a5, f1, f2]
