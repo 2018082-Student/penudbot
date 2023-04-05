@@ -10,7 +10,7 @@ def simulate():
 
     simDT = 1/240 # simulation timestep
     simTime = 25 # total simulation time in seconds
-    q0 = np.array([np.pi/20, 0]) # initial configuration
+    q0 = np.array( [ - 5 * np.pi / 6, 0 ] ) # initial configuration
 
     robotID, robotModel, params = sim_utils.simulationSetup(simDT)
 
@@ -19,50 +19,35 @@ def simulate():
     a3 = params[2]
     a4 = params[3]
     a5 = params[4]
-    f1 = params[5]
-    f2 = params[6]
-    print(params)
-    nDof = 2
-
+    params = [a1, a2,a3,a4,a5]
+   
     # we are going to consider both revolute joints, so we fill the whole
     # joint indices list
+    nDof = 2
     jointIndices = range(nDof)
-
     for i in jointIndices:
         pb.resetJointState(robotID, i, q0[i])
 
     q, qdot = sim_utils.getState(robotID, jointIndices) 
+    #pin.computeAllTerms(robotModel.model, robotModel.data, q, qdot)
 
-    # in general we need to call this to compute all the kinematic and 
-    # dynamic quantities (see pinocchio docs) which can be retrieved 
-    # either as members of the robotModel.data object, or via specific
-    # functions
-    # pin.computeAllTerms(robotModel.model, robotModel.data, q, qdot)
-
-    # set a desired joint configuration
-    #qdes = np.array([0,0])
     theta = 0.5
-    q_e = np.array( [0,0])
-    qdot_e = np.array( [0,0])
-
-    K = controller.lqr_lanari(a1, a2, a3, a4, a5, f1, f2)
-    #K = controller.lqr_pin(robotModel)
+    #K = controller.lqr( a1, a2, a3, a4, a5 )
+    K = np.array( [ -43.6130,  -43.4783,  -13.3053,   -7.3708 ] ) # for parameters of own robot 
     #print(K)
-    #input("press ENTER to START the simulation:")
+    #K = controller.lqr_pin(robotModel)
 
     for i in range(int(simTime/simDT)):
-
+        pin.computeAllTerms(robotModel.model, robotModel.data, q, qdot)
         # read the current joint state from the simulator
         q, qdot = sim_utils.getState(robotID, jointIndices)    
 
         if( abs( q[0] ) + abs( q[1] ) + 0.1 * abs( qdot[0] ) + 0.1 * abs( qdot[1] )  < theta ):
             tau1 = - K @ np.array( [ q[0], q[1], qdot[0], qdot[1] ] )
-            tau =  np.array( [tau1[0], 0])
+            tau =  np.array( [ tau1, 0 ] )
         else:
-            #tau = controller.SwingUpControl(q, qdot, params)
-            tau = controller.SwingUpControl_Pin(robotModel, q, qdot)
+            tau = controller.swingUpControl(q, qdot, params)
         
-        #tau = np.array([0,0])
         # send the torque command to the simulator
         pb.setJointMotorControlArray(
             robotID, jointIndices, controlMode = pb.TORQUE_CONTROL, forces = tau)

@@ -15,13 +15,13 @@
       </geometry>
     </visual>
   </link>
-  
+  <!-- intertia computation according to: https://en.wikipedia.org/wiki/List_of_moments_of_inertia#List_of_3D_inertia_tensors -->
   <link
     name="link_1">
     <inertial>
       <mass value="1"/>
-      <origin xyz = "0 0 0.5" />
-      <inertia ixx="0.02083333"  ixy="0"  ixz="0" iyy="0" iyz="0" izz="0" />
+      <origin xyz = "0 0 0.25" />
+      <inertia ixx="0.021458"  ixy="0"  ixz="0" iyy="0.021458" iyz="0" izz="0.00125" />
     </inertial>
     <visual>
 			<origin xyz = "0 0 0.25" />
@@ -29,7 +29,7 @@
 				<cylinder radius = "0.05" length = "0.5"  />
 			</geometry>
 			<material name = "gray 1">
-				<color rgba = "0.2 0.9 0.3 1" />
+				<color rgba = "0.3 0.9 0.3 1" />
 			</material>
 		</visual>
   </link>
@@ -37,8 +37,8 @@
     name="link_2">
     <inertial>
       <mass value="1"/>
-      <origin xyz = "0 0 0.5" />
-      <inertia ixx="0.020833"  ixy="0"  ixz="0" iyy="0" iyz="0" izz="0" />
+      <origin xyz = "0 0 0.25" />
+      <inertia ixx="0.021458"  ixy="0"  ixz="0" iyy="0.021458" iyz="0" izz="0.00125" />
     </inertial>
     <visual>
 			<origin xyz = "0 0 0.25" />
@@ -55,22 +55,22 @@
 		<parent link = "base_link" />
 		<child link = "link_1" />
 		<origin xyz = "0 0 0" />
-		<axis xyz = "1 0 0" />
+		<axis xyz = "-1 0 0" />
     <limit
       lower="-1000.0"
       upper="1000.0" effort="1000.0" velocity="1000.0"/>
-    <dynamics damping="0.01"/>
+    <dynamics damping="0.0001"/>
 	</joint>
 
   <joint name = "joint_2" type = "revolute">
 		<parent link = "link_1" />
 		<child link = "link_2" />
 		<origin xyz = "0 0 0.5" />
-		<axis xyz = "1 0 0" />
+		<axis xyz = "-1 0 0" />
     <limit
       lower="-1000.0"
       upper="1000.0" effort="1000.0" velocity="1000.0"/>
-    <dynamics damping="0.01"/>
+    <dynamics damping="0.0001"/>
 	</joint>
 
 
