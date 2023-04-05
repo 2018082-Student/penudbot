@@ -163,6 +163,6 @@ sim_duration = 2.5
 simDT = 1 / 1000
 
 x_init =  np.array( [ - 5. * np.pi / 6., 0., 0., 0. ]  )
-simulate_w_euler(x_init, sim_duration, simDT)
-#simulate_w_scipy(x_init, sim_duration, simDT)
+#simulate_w_euler(x_init, sim_duration, simDT)
+simulate_w_scipy(x_init, sim_duration, simDT)
 
