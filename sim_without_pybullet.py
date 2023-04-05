@@ -1,3 +1,8 @@
+####################################################
+##          SORRY FOR THE MESSY CODE.             ##
+##  I call the simulations in the last lines      ##
+####################################################
+
 import numpy as np
 import pinocchio as pin
 import control 
@@ -72,13 +77,6 @@ a3 = 0.0095
 a4 = 0.2085 
 a5 = 0.0630  
 params = [a1, a2,a3,a4,a5]
-
-print( get_gravity(a4, a5, 0,0) )
-print( get_gravity(a4, a5, np.pi,0) )
-print( get_gravity(a4, a5, -np.pi,0) )
-print( get_gravity(a4, a5, np.pi + np.pi/2,0) )
-print( get_gravity(a4, a5, - np.pi - np.pi/2,0) )
-#print( get_potential_energy(a4, a5, [np.pi * 2,0]) )
 
 def int_pendubot_sim(t, x, a1=0.0308, a2=0.0106 ,a3=0.0095 ,a4=0.2085  ,a5=0.0630 , LQR=True):
     
